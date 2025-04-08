@@ -29,7 +29,7 @@ jobs:
 
   Security-scan:
     runs-on: self-hosted
-
+    needs: compile
     steps:
       - uses: actions/checkout@v4
       - name: Trivy Installation
@@ -48,3 +48,17 @@ jobs:
 
       - name: Git leaks code Scan
         run: gitleaks detect source . -r gitleaks-report.json -f json
+
+  test:
+    runs-on: self-hosted
+    needs: Security-scan
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: maven
+      - name: Build with Maven
+        run: mvn test
